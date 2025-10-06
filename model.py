@@ -17,11 +17,11 @@ class SimpleCNN(nn.Module):
         # Blok Konvolusi 1
         self.conv_block1 = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, out_channels=16, kernel_size=3, padding=1),
-            nn.BatchNorm2d(16), # Menstabilkan layer
+            nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
-        
+
         # Blok Konvolusi 2
         self.conv_block2 = nn.Sequential(
             nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, padding=1),
@@ -29,11 +29,19 @@ class SimpleCNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
-        
+
         # Blok Konvolusi 3
         self.conv_block3 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+
+        # Blok Konvolusi 4
+        self.conv_block4 = nn.Sequential(
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
@@ -46,12 +54,15 @@ class SimpleCNN(nn.Module):
         # Ukuran input flattened: 64 (channels) * 3 * 3 = 576
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(64 * 3 * 3, 256),
+            nn.Linear(64 * 3 * 3, 512),
+            nn.ReLU(),
+            nn.Dropout(0.2), # Regularisasi untuk mencegah overfitting
+            nn.Linear(512, 256),
             nn.ReLU(),
             nn.Dropout(0.2), # Regularisasi untuk mencegah overfitting
             nn.Linear(256, 64),
             nn.ReLU(),
-             nn.Dropout(0.2), # Regularisasi untuk mencegah overfitting
+            nn.Dropout(0.2), # Regularisasi untuk mencegah overfitting
             nn.Linear(64, 1 if num_classes == 2 else num_classes)
         )
 
