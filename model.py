@@ -5,77 +5,30 @@ import torch.nn as nn
 
 class SimpleCNN(nn.Module):
     """
-    Arsitektur CNN yang lebih baik dengan beberapa perbaikan:
-    1.  Lebih Dalam (Deeper): Tiga lapisan konvolusi untuk menangkap fitur yang lebih kompleks.
-    2.  Batch Normalization: Menstabilkan dan mempercepat proses training.
-    3.  Dropout: Mengurangi overfitting dengan "mematikan" beberapa neuron secara acak saat training.
-    4.  Penggunaan nn.Sequential: Membuat kode lebih rapi dan terstruktur.
+    Arsitektur CNN yang paling sederhana dan basic:
+    1. Dua lapisan konvolusi
+    2. MaxPooling setelah setiap konvolusi
+    3. Satu fully connected layer untuk output
     """
-    def __init__(self, in_channels, num_classes):
-        super(SimpleCNN, self).__init__()
-        
-        # Blok Konvolusi 1
-        self.conv_block1 = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=16, kernel_size=3, padding=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
-
-        # Blok Konvolusi 2
-        self.conv_block2 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
-
-        # Blok Konvolusi 3
-        self.conv_block3 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
-
-        # Blok Konvolusi 4
-        self.conv_block4 = nn.Sequential(
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
-        
-        # Classifier (Fully Connected Layers)
-        # Ukuran input gambar: 28x28
-        # Setelah Pool 1: 14x14
-        # Setelah Pool 2: 7x7
-        # Setelah Pool 3: 3x3 (karena 7 // 2 = 3)
-        # Ukuran input flattened: 64 (channels) * 3 * 3 = 576
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(64 * 3 * 3, 512),
-            nn.ReLU(),
-            nn.Dropout(0.2), # Regularisasi untuk mencegah overfitting
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Dropout(0.2), # Regularisasi untuk mencegah overfitting
-            nn.Linear(256, 64),
-            nn.ReLU(),
-            nn.Dropout(0.2), # Regularisasi untuk mencegah overfitting
-            nn.Linear(64, 1 if num_classes == 2 else num_classes)
-        )
+    def __init__(self, in_channels=1, num_classes=10):
+        super().__init__()
+        self.conv1 = nn.Conv2d(in_channels, 6, kernel_size=5, stride=1, padding=2)   # 28x28 → 28x28
+        self.pool = nn.AvgPool2d(2)                                                  # 28x28 → 14x14
+        self.conv2 = nn.Conv2d(6, 16, kernel_size=5)                                 # 14x14 → 10x10
+        self.fc1 = nn.Linear(16 * 5 * 5, 120)                                        # 10x10 → 5x5 setelah pool
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 1 if num_classes == 2 else num_classes)
 
     def forward(self, x):
-        """Mendefinisikan alur data (forward pass)."""
-        x = self.conv_block1(x)
-        x = self.conv_block2(x)
-        x = self.conv_block3(x)
-        x = self.classifier(x)
+        x = self.pool(torch.relu(self.conv1(x)))   # (N, 6, 14, 14)
+        x = self.pool(torch.relu(self.conv2(x)))   # (N,16, 5, 5)
+        x = torch.flatten(x, 1)
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
         return x
 
 # --- Bagian untuk pengujian ---
-# Ganti nama model yang diuji dari SimpleCNN menjadi BetterCNN
 if __name__ == '__main__':
     NUM_CLASSES = 2
     IN_CHANNELS = 1
@@ -86,9 +39,9 @@ if __name__ == '__main__':
     print("Arsitektur Model:")
     print(model)
     
-    dummy_input = torch.randn(64, IN_CHANNELS, 28, 28) # Uji dengan batch size 64
+    dummy_input = torch.randn(64, IN_CHANNELS, 28, 28)
     output = model(dummy_input)
     
     print(f"\nUkuran input: {dummy_input.shape}")
-    print(f"Ukuran output: {output.shape}") # Harusnya [64, 1]
+    print(f"Ukuran output: {output.shape}")
     print("Pengujian model 'SimpleCNN' berhasil.")

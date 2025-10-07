@@ -1,37 +1,3 @@
-# datareader.py
-"""
-datareader.py
-Module for loading and preprocessing the ChestMNIST dataset for binary classification between Pneumonia and Edema.
-Classes:
-    FilteredBinaryDataset(Dataset):
-        A PyTorch Dataset that filters the ChestMNIST dataset to only include samples with a single label of either Pneumonia or Edema, and remaps their labels to 0 (Pneumonia) and 1 (Edema).
-Functions:
-    get_data_loaders(batch_size):
-        Returns PyTorch DataLoaders for the filtered binary dataset with data augmentation applied to the training set.
-    show_samples(dataset):
-        Visualizes 5 sample images from each class (Pneumonia and Edema) in the provided dataset.
-Constants:
-    CLASS_A_IDX (int): Index for 'pneumonia' class in ChestMNIST labels (6).
-    CLASS_B_IDX (int): Index for 'edema' class in ChestMNIST labels (11).
-    NEW_CLASS_NAMES (dict): Mapping of new class indices to class names.
-ChestMNIST Class Index Reference:
-    # 0: 'Atelectasis'
-    # 1: 'Cardiomegaly'
-    # 2: 'Consolidation'
-    # 3: 'Edema'
-    # 4: 'Effusion'
-    # 5: 'Emphysema'
-    # 6: 'Fibrosis'
-    # 7: 'Hernia'
-    # 8: 'Infiltration'
-    # 9: 'Mass'
-    # 10: 'Nodule'
-    # 11: 'Pneumonia'
-    # 12: 'Pleural_Thickening'
-    # 13: 'Pneumothorax'
-    # 14: 'No Finding'
-"""
-
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -39,9 +5,6 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Dataset
 from medmnist import ChestMNIST
 
-
-
-# --- Konfigurasi Kelas Biner ---
 CLASS_A_IDX = 9  # 'mass'
 CLASS_B_IDX = 10 # 'nodule'
 
