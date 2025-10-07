@@ -4,12 +4,6 @@ import torch
 import torch.nn as nn
 
 class SimpleCNN(nn.Module):
-    """
-    Arsitektur CNN yang paling sederhana dan basic:
-    1. Dua lapisan konvolusi
-    2. MaxPooling setelah setiap konvolusi
-    3. Satu fully connected layer untuk output
-    """
     def __init__(self, in_channels=1, num_classes=10):
         super().__init__()
         self.conv1 = nn.Conv2d(in_channels, 6, kernel_size=5, stride=1, padding=2)   # 28x28 → 28x28

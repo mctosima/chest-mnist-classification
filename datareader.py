@@ -5,10 +5,27 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Dataset
 from medmnist import ChestMNIST
 
-CLASS_A_IDX = 9  # 'mass'
-CLASS_B_IDX = 10 # 'nodule'
+# --- Konfigurasi Kelas Biner ---
+CLASS_A_IDX = 1  # 'Cardiomegaly'
+CLASS_B_IDX = 7 # 'Pneumothorax'
 
-NEW_CLASS_NAMES = {0: 'Pneumonia', 1: 'Edema'}
+NEW_CLASS_NAMES = {0: 'Cardiomegaly', 1: 'Pneumothorax'}
+ALL_CLASS_NAMES = [
+    'Atelectasis',        # 0
+    'Cardiomegaly',       # 1
+    'Effusion',           # 2
+    'Infiltration',       # 3
+    'Mass',               # 4
+    'Nodule',             # 5
+    'Pneumonia',          # 6
+    'Pneumothorax',       # 7
+    'Consolidation',      # 8
+    'Edema',              # 9
+    'Emphysema',          # 10
+    'Fibrosis',           # 11
+    'Pleural_Thickening', # 12
+    'Hernia',             # 13
+]
 
 class FilteredBinaryDataset(Dataset):
     def __init__(self, split, transform=None):
@@ -26,15 +43,20 @@ class FilteredBinaryDataset(Dataset):
         self.images = []
         self.labels = []
 
-        # Tambahkan data untuk kelas Pneumonia (dipetakan ke label 0)
+        # Tambahkan data untuk kelas Cardiomegaly (dipetakan ke label 0)
         for idx in indices_a:
             self.images.append(full_dataset[idx][0])
             self.labels.append(0)
 
-        # Tambahkan data untuk kelas Fibrosis (dipetakan ke label 1)
+        # Tambahkan data untuk kelas Pneumothorax (dipetakan ke label 1)
         for idx in indices_b:
             self.images.append(full_dataset[idx][0])
             self.labels.append(1)
+        
+        print(f"Split: {split}")
+        print(f"Jumlah Cardiomegaly (label 0): {len(indices_a)}")
+        print(f"Jumlah Pneumothorax (label 1): {len(indices_b)}")
+        print()
 
     def __len__(self):
         return len(self.labels)
@@ -51,18 +73,6 @@ class FilteredBinaryDataset(Dataset):
 def get_data_loaders(batch_size):
     data_transform = transforms.Compose([
         transforms.ToTensor(),
-        # 1. Balik Horizontal dengan probabilitas 50%
-        transforms.RandomHorizontalFlip(p=0.5),
-
-        # 2. Rotasi acak dengan sudut kecil
-        transforms.RandomRotation(degrees=10),
-        
-        # 3. Translasi (pergeseran) acak sebesar 10% dari ukuran gambar
-        transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),
-        
-        # 4. (Opsional) Perubahan kecerahan dan kontras yang halus
-        # Gunakan nilai kecil untuk brightness dan contrast
-        transforms.ColorJitter(brightness=0.1, contrast=0.1),
         transforms.Normalize(mean=[.5], std=[.5]),
     ])
 
@@ -83,38 +93,76 @@ def get_data_loaders(batch_size):
     return train_loader, val_loader, n_classes, n_channels
 
 def show_samples(dataset):
-    pneumonia_imgs = []
-    fibrosis_imgs = []
+    cardiomegaly_imgs = []
+    pneumothorax_imgs = []
     
     for img, label in dataset:
-        if label.item() == 0 and len(pneumonia_imgs) < 5:
-            pneumonia_imgs.append(img)
-        elif label.item() == 1 and len(fibrosis_imgs) < 5:
-            fibrosis_imgs.append(img)
+        if label.item() == 0 and len(cardiomegaly_imgs) < 5:
+            cardiomegaly_imgs.append(img)
+        elif label.item() == 1 and len(pneumothorax_imgs) < 5:
+            pneumothorax_imgs.append(img)
         
-        if len(pneumonia_imgs) == 5 and len(fibrosis_imgs) == 5:
+        if len(cardiomegaly_imgs) == 5 and len(pneumothorax_imgs) == 5:
             break
             
     fig, axes = plt.subplots(2, 5, figsize=(15, 6))
-    fig.suptitle("Perbandingan Gambar: Pneumonia (atas) vs Fibrosis (bawah)", fontsize=16)
+    fig.suptitle("Perbandingan Gambar: Cardiomegaly (atas) vs Pneumothorax (bawah)", fontsize=16)
     
-    for i, img in enumerate(pneumonia_imgs):
+    for i, img in enumerate(cardiomegaly_imgs):
         ax = axes[0, i]
         ax.imshow(img.squeeze(), cmap='gray')
-        ax.set_title(f"Pneumonia #{i+1}")
+        ax.set_title(f"Cardiomegaly #{i+1}")
         ax.axis('off')
         
-    for i, img in enumerate(fibrosis_imgs):
+    for i, img in enumerate(pneumothorax_imgs):
         ax = axes[1, i]
         ax.imshow(img.squeeze(), cmap='gray')
-        ax.set_title(f"Fibrosis #{i+1}")
+        ax.set_title(f"Pneumothorax #{i+1}")
         ax.axis('off')
         
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
 
+def show_class_distribution(split='train'):
+    full_dataset = ChestMNIST(split=split, transform=None, download=True)
+    original_labels = full_dataset.labels
+    
+    class_counts = {}
+    for idx, class_name in enumerate(ALL_CLASS_NAMES):
+        count = np.where((original_labels[:, idx] == 1) & (original_labels.sum(axis=1) == 1))[0].shape[0]
+        class_counts[class_name] = count
+    
+    # Urutkan berdasarkan jumlah (descending)
+    sorted_classes = sorted(class_counts.items(), key=lambda x: x[1], reverse=True)
+    
+    print(f"\n{'='*60}")
+    print(f"Distribusi Kelas di ChestMNIST ({split.upper()} set)")
+    print(f"(Hanya single-label samples)")
+    print(f"{'='*60}")
+    print(f"{'No':<4} {'Kelas':<25} {'Jumlah Sampel':<15}")
+    print(f"{'-'*60}")
+    
+    total_samples = 0
+    for i, (class_name, count) in enumerate(sorted_classes, 1):
+        print(f"{i:<4} {class_name:<25} {count:<15}")
+        total_samples += count
+    
+    print(f"{'-'*60}")
+    print(f"{'TOTAL':<29} {total_samples:<15}")
+    print(f"{'='*60}\n")
+    
+    return sorted_classes
+
 if __name__ == '__main__':
     print("Memuat dataset untuk plotting...")
+    
+    # Tampilkan distribusi kelas
+    print("\n--- Distribusi Kelas Training Set ---")
+    show_class_distribution('train')
+    
+    print("\n--- Distribusi Kelas Test Set ---")
+    show_class_distribution('test')
+    
     plot_transform = transforms.Compose([transforms.ToTensor()])
     train_dataset = FilteredBinaryDataset('train', transform=plot_transform)
     
