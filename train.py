@@ -3,9 +3,10 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from datareader import get_data_loaders
+from datareader import get_data_loaders, NEW_CLASS_NAMES
 from model import SimpleCNN
 import matplotlib.pyplot as plt
+from utils import plot_training_history, visualize_random_val_predictions
 
 # --- Hyperparameter ---
 EPOCHS = 16
@@ -13,44 +14,6 @@ BATCH_SIZE = 16
 LEARNING_RATE = 0.0003
 
 #Menampilkan plot riwayat training dan validasi setelah training selesai.
-def plot_training_history(train_losses, val_losses, train_accs, val_accs):
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
-    
-    # Plot Loss
-    epochs_range = range(1, len(train_losses) + 1)
-    ax1.plot(epochs_range, train_losses, 'b-', label='Training Loss', linewidth=2)
-    ax1.plot(epochs_range, val_losses, 'r-', label='Validation Loss', linewidth=2)
-    ax1.set_xlabel('Epoch', fontsize=12)
-    ax1.set_ylabel('Loss', fontsize=12)
-    ax1.set_title('Training dan Validation Loss', fontsize=14, fontweight='bold')
-    ax1.legend(fontsize=10)
-    ax1.grid(True, alpha=0.3)
-    
-    # Plot Accuracy
-    ax2.plot(epochs_range, train_accs, 'b-', label='Training Accuracy', linewidth=2)
-    ax2.plot(epochs_range, val_accs, 'r-', label='Validation Accuracy', linewidth=2)
-    ax2.set_xlabel('Epoch', fontsize=12)
-    ax2.set_ylabel('Accuracy (%)', fontsize=12)
-    ax2.set_title('Training dan Validation Accuracy', fontsize=14, fontweight='bold')
-    ax2.legend(fontsize=10)
-    ax2.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.savefig('training_history.png', dpi=300, bbox_inches='tight')
-    print("\nPlot disimpan sebagai 'training_history.png'")
-    plt.show()
-    ax2.plot(epochs_range, train_accs, 'b-', label='Training Accuracy', linewidth=2)
-    ax2.plot(epochs_range, val_accs, 'r-', label='Validation Accuracy', linewidth=2)
-    ax2.set_xlabel('Epoch', fontsize=12)
-    ax2.set_ylabel('Accuracy (%)', fontsize=12)
-    ax2.set_title('Training dan Validation Accuracy', fontsize=14, fontweight='bold')
-    ax2.legend(fontsize=10)
-    ax2.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.savefig('training_history.png', dpi=300, bbox_inches='tight')
-    print("\nPlot disimpan sebagai 'training_history.png'")
-    plt.show()
 
 def train():
     # 1. Memuat Data
@@ -139,6 +102,9 @@ def train():
     # Tampilkan plot
     plot_training_history(train_losses_history, val_losses_history, 
                          train_accs_history, val_accs_history)
+
+    # Visualisasi prediksi pada 10 gambar random dari validation set
+    visualize_random_val_predictions(model, val_loader, num_classes, count=10)
 
 if __name__ == '__main__':
     train()
