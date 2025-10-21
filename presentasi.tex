@@ -1,0 +1,171 @@
+% Presentasi Eksperimen Deep Learning
+% Martin - 12345 - Biomedis ITERA
+
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[indonesian]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Info
+\title{Eksperimen Klasifikasi Citra Medis}
+\subtitle{Perbandingan Arsitektur Deep Learning}
+\author{Martin (12345)}
+\institute{Program Studi Biomedis\\Institut Teknologi Sumatera (ITERA)}
+\date{\today}
+
+% Custom colors
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\begin{document}
+
+% Slide 1: Title
+\begin{frame}
+\titlepage
+\end{frame}
+
+% Slide 2: Latar Belakang & Tujuan
+\begin{frame}{Latar Belakang \& Tujuan}
+\begin{block}{Latar Belakang}
+\begin{itemize}
+    \item Klasifikasi citra medis memerlukan model yang akurat dan efisien
+    \item Berbagai arsitektur deep learning menawarkan trade-off antara akurasi dan kompleksitas
+    \item Perlu dilakukan perbandingan untuk menemukan model terbaik
+\end{itemize}
+\end{block}
+
+\vspace{0.5cm}
+
+\begin{block}{Tujuan Penelitian}
+\begin{itemize}
+    \item Membandingkan performa 4 arsitektur deep learning berbeda
+    \item Menganalisis efisiensi komputasi dari setiap model
+    \item Menentukan model terbaik untuk klasifikasi citra medis
+\end{itemize}
+\end{block}
+\end{frame}
+
+% Slide 3: Arsitektur Model
+\begin{frame}{Arsitektur Model yang Diuji}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\begin{block}{1. Simple CNN}
+\begin{itemize}
+    \item CNN sederhana dengan 2 layer konvolusi
+    \item \textbf{Parameters:} $\sim$50K
+    \item \textbf{Kelebihan:} Cepat, ringan
+    \item \textbf{Kekurangan:} Akurasi terbatas
+\end{itemize}
+\end{block}
+
+\begin{block}{2. ResNet-18}
+\begin{itemize}
+    \item 18 layer dengan skip connections
+    \item \textbf{Parameters:} $\sim$11M
+    \item \textbf{Kelebihan:} Training stabil
+    \item \textbf{Kekurangan:} Lebih berat
+\end{itemize}
+\end{block}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{block}{3. ResNet-34}
+\begin{itemize}
+    \item 34 layer dengan residual blocks
+    \item \textbf{Parameters:} $\sim$21M
+    \item \textbf{Kelebihan:} Akurasi tinggi
+    \item \textbf{Kekurangan:} Komputasi berat
+\end{itemize}
+\end{block}
+
+\begin{block}{4. ShuffleNet V1}
+\begin{itemize}
+    \item Channel shuffle + depthwise conv
+    \item \textbf{Parameters:} $\sim$1-2M
+    \item \textbf{Kelebihan:} Sangat efisien
+    \item \textbf{Kekurangan:} Implementasi kompleks
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+% Slide 4: Metodologi
+\begin{frame}{Metodologi Eksperimen}
+\begin{block}{Dataset}
+\begin{itemize}
+    \item \textbf{Dataset:} ChestMNIST (Medical MNIST)
+    \item \textbf{Jumlah Kelas:} 2 (klasifikasi biner)
+    \item \textbf{Ukuran Gambar:} 224 $\times$ 224 piksel
+    \item \textbf{Channel:} 1 (grayscale)
+\end{itemize}
+\end{block}
+
+\begin{block}{Hyperparameter Training}
+\begin{itemize}
+    \item \textbf{Optimizer:} Adam
+    \item \textbf{Learning Rate:} 0.00001
+    \item \textbf{Batch Size:} 16
+    \item \textbf{Epochs:} 16
+    \item \textbf{Loss Function:} BCEWithLogitsLoss
+\end{itemize}
+\end{block}
+\end{frame}
+
+% Slide 5: Implementasi
+\begin{frame}[fragile]{Implementasi Sistem}
+\begin{block}{Struktur Kode}
+\begin{itemize}
+    \item \texttt{model.py} - Simple CNN (baseline)
+    \item \texttt{model\_resnet.py} - ResNet-18 \& ResNet-34
+    \item \texttt{model\_shufflenet.py} - ShuffleNet V1
+    \item \texttt{train.py} - Script training dengan model selection
+    \item \texttt{datareader.py} - Data loading \& preprocessing
+\end{itemize}
+\end{block}
+
+\begin{block}{Pemilihan Model}
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, 
+    backgroundcolor=\color{backcolour},
+    keywordstyle=\color{blue},
+    stringstyle=\color{codepurple}]
+# Pilih model dengan mengubah variable
+MODEL_TYPE = 'shufflenet'  # Options: 
+# 'simple_cnn', 'resnet18', 'resnet34', 
+# 'shufflenet', 'shufflenet_small'
+\end{lstlisting}
+\end{block}
+
+\begin{alertblock}{Fleksibilitas}
+Sistem dirancang modular: \textbf{mudah menambah model baru} atau \textbf{mengganti hyperparameter} tanpa mengubah struktur kode utama.
+\end{alertblock}
+\end{frame}
+
+% Backup slide: Kesimpulan (optional)
+\begin{frame}{Terima Kasih}
+\begin{center}
+\Huge Terima Kasih!
+
+\vspace{1cm}
+
+\Large \textbf{Martin (12345)}\\
+\normalsize Program Studi Biomedis\\
+Institut Teknologi Sumatera
+
+\vspace{1cm}
+
+\normalsize
+\textit{``Deep Learning untuk Kesehatan yang Lebih Baik''}
+\end{center}
+\end{frame}
+
+\end{document}

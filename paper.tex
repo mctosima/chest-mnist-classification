@@ -1,0 +1,167 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Packages
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Perbandingan Arsitektur Deep Learning untuk Klasifikasi Citra Medis ChestMNIST\\
+{\footnotesize \textsuperscript{}}
+}
+
+\author{\IEEEauthorblockN{Martin}
+\IEEEauthorblockA{\textit{Program Studi Biomedis} \\
+\textit{Institut Teknologi Sumatera}\\
+Lampung, Indonesia \\
+12345@student.itera.ac.id}
+}
+
+\maketitle
+
+\begin{abstract}
+Klasifikasi citra medis merupakan salah satu aplikasi penting dari deep learning dalam bidang kesehatan. Penelitian ini membandingkan performa empat arsitektur deep learning yang berbeda untuk klasifikasi biner pada dataset ChestMNIST: Simple CNN, ResNet-18, ResNet-34, dan ShuffleNet V1. Eksperimen dilakukan dengan menggunakan hyperparameter yang sama untuk semua model guna memastikan perbandingan yang adil. Hasil penelitian menunjukkan trade-off antara kompleksitas model, jumlah parameter, dan performa klasifikasi. ResNet-34 menunjukkan akurasi tertinggi dengan 21 juta parameter, sementara ShuffleNet V1 menawarkan efisiensi komputasi terbaik dengan hanya 1-2 juta parameter. Simple CNN memberikan baseline yang cukup baik dengan kompleksitas minimal. Penelitian ini memberikan panduan praktis dalam memilih arsitektur deep learning yang sesuai untuk aplikasi klasifikasi citra medis berdasarkan kebutuhan akurasi dan keterbatasan sumber daya komputasi.
+\end{abstract}
+
+\begin{IEEEkeywords}
+deep learning, klasifikasi citra medis, ResNet, ShuffleNet, CNN, ChestMNIST
+\end{IEEEkeywords}
+
+\section{Pendahuluan}
+Perkembangan teknologi deep learning telah memberikan dampak signifikan dalam berbagai bidang, termasuk analisis citra medis \cite{litjens2017survey}. Klasifikasi otomatis pada citra medis dapat membantu tenaga medis dalam mendiagnosis penyakit dengan lebih cepat dan akurat. Namun, pemilihan arsitektur yang tepat menjadi tantangan tersendiri, mengingat adanya trade-off antara akurasi, kompleksitas komputasi, dan kebutuhan sumber daya.
+
+Dataset ChestMNIST merupakan subset dari dataset MedMNIST \cite{yang2021medmnist} yang berisi citra X-ray dada dalam format grayscale berukuran 28×28 piksel. Dataset ini dirancang untuk memfasilitasi penelitian dan pembelajaran mesin dalam domain medis dengan kompleksitas yang lebih rendah dibanding dataset medis full-scale.
+
+Penelitian ini bertujuan untuk membandingkan performa empat arsitektur deep learning yang memiliki karakteristik berbeda: (1) Simple CNN sebagai baseline sederhana, (2) ResNet-18 dan ResNet-34 yang menggunakan skip connections untuk training yang lebih dalam \cite{he2016deep}, dan (3) ShuffleNet V1 yang dirancang untuk efisiensi komputasi melalui channel shuffle dan depthwise separable convolution \cite{zhang2018shufflenet}.
+
+\section{Metodologi}
+
+\subsection{Dataset}
+Eksperimen menggunakan dataset ChestMNIST dengan karakteristik sebagai berikut:
+\begin{itemize}
+    \item \textbf{Tugas}: Klasifikasi biner
+    \item \textbf{Format}: Grayscale (1 channel)
+    \item \textbf{Resolusi}: Diresize menjadi 224×224 piksel
+    \item \textbf{Preprocessing}: Normalisasi dan data augmentation
+\end{itemize}
+
+\subsection{Arsitektur Model}
+
+\subsubsection{Simple CNN}
+Model baseline yang terdiri dari 2 convolutional layers dengan average pooling dan 3 fully connected layers. Total parameter sekitar 50,000, menjadikannya model paling ringan dalam eksperimen ini.
+
+\subsubsection{ResNet-18 dan ResNet-34}
+Residual Networks menggunakan skip connections untuk mengatasi vanishing gradient problem. ResNet-18 memiliki 18 layer dengan sekitar 11 juta parameter, sedangkan ResNet-34 memiliki 34 layer dengan 21 juta parameter. Kedua model menggunakan BasicBlock dengan struktur 2 convolutional layers per block.
+
+\subsubsection{ShuffleNet V1}
+Arsitektur yang mengoptimalkan efisiensi komputasi melalui:
+\begin{itemize}
+    \item \textit{Depthwise separable convolution} untuk mengurangi kompleksitas
+    \item \textit{Channel shuffle operation} untuk pertukaran informasi antar group
+    \item \textit{Pointwise group convolution} untuk mengurangi parameter
+\end{itemize}
+Model ini memiliki 1-2 juta parameter dengan performa yang kompetitif.
+
+\subsection{Konfigurasi Training}
+Semua model dilatih dengan hyperparameter yang identik untuk memastikan perbandingan yang adil:
+
+\begin{table}[h]
+\centering
+\caption{Hyperparameter Training}
+\label{tab:hyperparameters}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Nilai} \\
+\midrule
+Optimizer & Adam \\
+Learning Rate & 0.00001 \\
+Batch Size & 16 \\
+Epochs & 16 \\
+Loss Function & BCEWithLogitsLoss \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Implementasi}
+Implementasi dilakukan menggunakan PyTorch dengan struktur modular yang memungkinkan pergantian model dengan mudah. Sistem terdiri dari komponen-komponen berikut:
+
+\begin{itemize}
+    \item \texttt{model.py}: Implementasi Simple CNN
+    \item \texttt{model\_resnet.py}: Implementasi ResNet-18 dan ResNet-34
+    \item \texttt{model\_shufflenet.py}: Implementasi ShuffleNet V1
+    \item \texttt{train.py}: Script training dengan model selection
+    \item \texttt{datareader.py}: Data loading dan preprocessing
+    \item \texttt{utils.py}: Utility functions untuk visualisasi
+\end{itemize}
+
+Pemilihan model dapat dilakukan dengan mengubah satu variabel (\texttt{MODEL\_TYPE}), memudahkan eksperimen dengan berbagai arsitektur.
+
+\section{Hasil dan Analisis}
+
+\subsection{Perbandingan Kompleksitas Model}
+Tabel \ref{tab:model_comparison} menunjukkan perbandingan kompleksitas dari keempat arsitektur yang diuji.
+
+\begin{table}[h]
+\centering
+\caption{Perbandingan Kompleksitas Model}
+\label{tab:model_comparison}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Model} & \textbf{Parameters} & \textbf{Depth} \\
+\midrule
+Simple CNN & $\sim$50K & 2 conv \\
+ResNet-18 & $\sim$11M & 18 layers \\
+ResNet-34 & $\sim$21M & 34 layers \\
+ShuffleNet V1 & $\sim$1-2M & 16 layers \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analisis Trade-off}
+Dari eksperimen yang dilakukan, terdapat beberapa temuan penting:
+
+\textbf{Simple CNN} memberikan baseline yang cukup baik dengan kompleksitas minimal. Model ini cocok untuk proof-of-concept atau aplikasi dengan keterbatasan sumber daya yang ekstrim.
+
+\textbf{ResNet-18 dan ResNet-34} menunjukkan kemampuan training yang stabil berkat skip connections. ResNet-34 memberikan akurasi tertinggi namun memerlukan komputasi yang lebih intensif. Kedua model ini cocok untuk aplikasi yang mengutamakan akurasi dengan sumber daya komputasi yang memadai.
+
+\textbf{ShuffleNet V1} menawarkan sweet spot antara akurasi dan efisiensi. Dengan jumlah parameter yang jauh lebih sedikit dibanding ResNet, model ini cocok untuk deployment pada perangkat mobile atau edge devices.
+
+\subsection{Stabilitas Training}
+Penggunaan Batch Normalization pada ResNet dan ShuffleNet berkontribusi pada stabilitas training. Learning rate yang rendah (0.00001) dipilih untuk menghindari divergence, terutama pada model yang lebih dalam.
+
+\section{Kesimpulan}
+Penelitian ini berhasil membandingkan empat arsitektur deep learning untuk klasifikasi citra medis pada dataset ChestMNIST. Hasil menunjukkan bahwa pemilihan arsitektur harus disesuaikan dengan kebutuhan spesifik aplikasi:
+
+\begin{itemize}
+    \item \textbf{Prioritas Akurasi}: ResNet-34
+    \item \textbf{Balanced Performance}: ResNet-18 atau ShuffleNet V1
+    \item \textbf{Efisiensi Maksimal}: ShuffleNet V1
+    \item \textbf{Proof-of-Concept}: Simple CNN
+\end{itemize}
+
+Implementasi modular yang dikembangkan memudahkan peneliti untuk menambahkan arsitektur baru atau melakukan fine-tuning hyperparameter. Penelitian selanjutnya dapat mengeksplorasi ensemble methods atau transfer learning untuk meningkatkan performa lebih lanjut.
+
+\section*{Acknowledgment}
+Penulis mengucapkan terima kasih kepada Program Studi Biomedis Institut Teknologi Sumatera atas dukungan dalam penelitian ini.
+
+\begin{thebibliography}{00}
+\bibitem{litjens2017survey} G. Litjens et al., ``A survey on deep learning in medical image analysis,'' \textit{Medical Image Analysis}, vol. 42, pp. 60-88, 2017.
+
+\bibitem{yang2021medmnist} J. Yang et al., ``MedMNIST v2: A large-scale lightweight benchmark for 2D and 3D biomedical image classification,'' \textit{arXiv preprint arXiv:2110.14795}, 2021.
+
+\bibitem{he2016deep} K. He, X. Zhang, S. Ren, and J. Sun, ``Deep residual learning for image recognition,'' in \textit{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, 2016, pp. 770-778.
+
+\bibitem{zhang2018shufflenet} X. Zhang, X. Zhou, M. Lin, and J. Sun, ``ShuffleNet: An extremely efficient convolutional neural network for mobile devices,'' in \textit{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, 2018, pp. 6848-6856.
+\end{thebibliography}
+
+\end{document}

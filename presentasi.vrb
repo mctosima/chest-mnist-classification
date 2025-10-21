@@ -1,0 +1,26 @@
+\frametitle{Implementasi Sistem}
+\begin{block}{Struktur Kode}
+\begin{itemize}
+    \item \texttt{model.py} - Simple CNN (baseline)
+    \item \texttt{model\_resnet.py} - ResNet-18 \& ResNet-34
+    \item \texttt{model\_shufflenet.py} - ShuffleNet V1
+    \item \texttt{train.py} - Script training dengan model selection
+    \item \texttt{datareader.py} - Data loading \& preprocessing
+\end{itemize}
+\end{block}
+
+\begin{block}{Pemilihan Model}
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily,
+    backgroundcolor=\color{backcolour},
+    keywordstyle=\color{blue},
+    stringstyle=\color{codepurple}]
+# Pilih model dengan mengubah variable
+MODEL_TYPE = 'shufflenet'  # Options:
+# 'simple_cnn', 'resnet18', 'resnet34',
+# 'shufflenet', 'shufflenet_small'
+\end{lstlisting}
+\end{block}
+
+\begin{alertblock}{Fleksibilitas}
+Sistem dirancang modular: \textbf{mudah menambah model baru} atau \textbf{mengganti hyperparameter} tanpa mengubah struktur kode utama.
+\end{alertblock}

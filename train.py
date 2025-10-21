@@ -4,14 +4,21 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from datareader import get_data_loaders, NEW_CLASS_NAMES
-from model import SimpleCNN
+from model import SimpleCNN  # CNN sederhana lama
+from model_resnet import resnet18, resnet34  # ResNet models
+from model_shufflenet import shufflenet_v1, shufflenet_v1_small  # ShuffleNet models
 import matplotlib.pyplot as plt
 from utils import plot_training_history, visualize_random_val_predictions
 
 # --- Hyperparameter ---
 EPOCHS = 16
-BATCH_SIZE = 16
-LEARNING_RATE = 0.0003
+BATCH_SIZE = 32
+LEARNING_RATE = 0.001
+
+# --- Model Selection ---
+# Pilih model yang mau dipake: 
+# 'simple_cnn', 'resnet18', 'resnet34', 'shufflenet', 'shufflenet_small'
+MODEL_TYPE = 'shufflenet'  # <<< UBAH DI SINI UNTUK GANTI MODEL
 
 #Menampilkan plot riwayat training dan validasi setelah training selesai.
 
@@ -19,8 +26,35 @@ def train():
     # 1. Memuat Data
     train_loader, val_loader, num_classes, in_channels = get_data_loaders(BATCH_SIZE)
     
-    # 2. Inisialisasi Model
-    model = SimpleCNN(in_channels=in_channels, num_classes=num_classes)
+    # 2. Inisialisasi Model berdasarkan pilihan
+    print(f"\n{'='*60}")
+    print(f"Model yang dipilih: {MODEL_TYPE.upper()}")
+    print(f"{'='*60}\n")
+    
+    if MODEL_TYPE == 'simple_cnn':
+        model = SimpleCNN(in_channels=in_channels, num_classes=num_classes)
+        print("✓ Menggunakan SimpleCNN (CNN sederhana)")
+    elif MODEL_TYPE == 'resnet18':
+        model = resnet18(in_channels=in_channels, num_classes=num_classes)
+        print("✓ Menggunakan ResNet-18")
+    elif MODEL_TYPE == 'resnet34':
+        model = resnet34(in_channels=in_channels, num_classes=num_classes)
+        print("✓ Menggunakan ResNet-34")
+    elif MODEL_TYPE == 'shufflenet':
+        model = shufflenet_v1(num_classes=num_classes, groups=3, in_channels=in_channels)
+        print("✓ Menggunakan ShuffleNet V1 (groups=3)")
+    elif MODEL_TYPE == 'shufflenet_small':
+        model = shufflenet_v1_small(num_classes=num_classes, groups=3, in_channels=in_channels)
+        print("✓ Menggunakan ShuffleNet V1 Small (groups=3)")
+    else:
+        raise ValueError(f"Model type '{MODEL_TYPE}' tidak valid! Pilih: 'simple_cnn', 'resnet18', 'resnet34', 'shufflenet', atau 'shufflenet_small'")
+    
+    # Hitung total parameters
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Total parameters: {total_params:,}")
+    print(f"Trainable parameters: {trainable_params:,}")
+    print(f"\nArsitektur Model:")
     print(model)
     
     # 3. Mendefinisikan Loss Function dan Optimizer
