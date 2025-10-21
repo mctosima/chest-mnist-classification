@@ -116,9 +116,12 @@ Alur Pengerjaan:
 - Kirim link repository fork beserta ringkasan perubahan dan hasil.
 
 ### Pengumpulan
-- Fork WAJIB bersifat publik.
-- Kumpulkan link fork Anda melalui email ke: `martin.manullang@if.itera.ac.id`
-- Subjek email: `Tugas ChestMnist BM`
+- Fork WAJIB bersifat publik sehingga repo anda dapat diakses untuk penilaian.
+- Kumpulkan link fork Anda melalui [tautan berikut ini](https://tally.so/r/mOWMdk).
+- Pastikan repo sudah memiliki:
+  - Kode sumber yang sudah dimodifikasi.
+  - File `training_history.png` dan `val_predictions.png` dari eksperimen terbaik Anda.
+  - File `laporan.md` yang menjelaskan perubahan dan hasil eksperimen.
 
 ### Aturan Individu/Kelompok
 - Boleh individu (nilai berpotensi lebih tinggi) atau berkelompok maksimal 3 orang.
